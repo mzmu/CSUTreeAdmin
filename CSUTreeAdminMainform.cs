@@ -176,7 +176,30 @@ namespace CSUTreeAdmin
             dlg.setTreeAge(tree.Age);
             dlg.setTreeDiameter(tree.Diameter);
             dlg.setTreeType(tree.Treetype);
-            dlg.ShowDialog();
+            if (DialogResult.OK != dlg.ShowDialog())
+            {
+                return;
+            }
+
+            // edit tree info
+            NpgsqlConnection conn = getConnection();
+            string sql = String.Format(""
+                                    +" update "
+	                                +"      trees "
+                                    +" set " 
+	                                +"      treetype = @t, "
+                                    + "     age = @a, "
+                                    + "     diameter = @d, "
+                                    + "     lasttime = now()"
+                                    +" where "
+	                                +"      id = @i ");
+            NpgsqlCommand cmd = new NpgsqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("i", dlg.Id);
+            cmd.Parameters.AddWithValue("d", dlg.getTreeDiameter());
+            cmd.Parameters.AddWithValue("a", dlg.getTreeAge());
+            cmd.Parameters.AddWithValue("t", dlg.getTreeType());
+            cmd.ExecuteNonQuery();
+            conn.Close();
         }
 
 
